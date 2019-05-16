@@ -175,20 +175,36 @@ Here's how you can use `index.js` to build a two-step prompting flow. Instead of
 ```javascript{3}
 // my-generator/my-action/index.js
 module.exports = {
-  prompt: ({ prompter, args }) =>
-    prompter
-      .prompt({
+  prompt: async ({ prompter, args }) =>
+    let templateVariables = {};
+    
+    // 1st prompt!!
+    const {email} = await prompter.prompt({
         type: 'input',
         name: 'email',
         message: "What's your email?"
-      })
-      .then(({ email }) =>
-        prompter.prompt({
-          type: 'input',
-          name: 'emailConfirmation',
-          message: `Please type your email [${email}] again:`
-        })
-      )
+    });
+    
+    // 2nd Prompt - Based on the outout of the 1st Prompt!
+    const {emailConfirmation} = await prompter.prompt({
+      type: 'input',
+      name: 'emailConfirmation',
+      message: `Please type your email [${email}] again:`
+    });
+    
+    /**
+     *  Important!!
+     *  Using this approach i.e using prompter 
+     *  we need to explicitly return an object containing the 
+     *  variables which we require in our templates
+     */
+     
+    // variables to be consumed in the template
+
+    return {
+      email,
+      emailConfirmation
+    };
 }
 ```
 
